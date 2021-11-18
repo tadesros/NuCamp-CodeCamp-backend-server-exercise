@@ -8,6 +8,11 @@ const session = require('express-session');
 //second function call.
 const FileStore = require('session-file-store')(session);
 
+const passport = require('passport');
+const authenticate = require('./authenticate');
+
+
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 const campsiteRouter = require('./routes/campsiteRouter');
@@ -40,7 +45,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 //app.use(cookieParser('12345-67890'));
 
-
 app.use(session({
   name: 'session-id',                 //Name doesn't matter
   secret: '12345-67890-09876-54321',
@@ -50,35 +54,25 @@ app.use(session({
 }));
 
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 
 //Want available to users before the auth function
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-
-
-
 //Custom middleware function
 function auth(req, res, next) {
+  console.log(req.user);
 
-
-  console.log(req.session);
-
-  if (!req.session.user) {
-
+  if (!req.user) {
     const err = new Error('You are not authenticated!');
     err.status = 401;
     return next(err);
-  }
-  else {
-    //Check value set in authenticator when user logged in
-    if (req.session.user === 'authenticated') {
-      return next();
-    } else {
-      const err = new Error('You are not authenticated!');
-      err.status = 401;
-      return next(err);
-    }
+  } else {
+    return next();
   }
 }
 
@@ -88,8 +82,6 @@ app.use(auth);
 
 //Users can access static data without authenticating
 app.use(express.static(path.join(__dirname, 'public')));
-
-
 
 app.use('/campsites', campsiteRouter);
 app.use('/promotions', promotionRouter);
