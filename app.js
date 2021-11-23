@@ -26,7 +26,6 @@ connect.then(() => console.log('Connected correctly to server'),
   err => console.log(err)
 );
 
-
 var app = express();
 
 // view engine setup
@@ -50,7 +49,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/campsites', campsiteRouter);
 app.use('/promotions', promotionRouter);
 app.use('/partners', partnerRouter);
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
